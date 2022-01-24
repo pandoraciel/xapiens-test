@@ -1,0 +1,96 @@
+﻿@{
+    ViewBag.Title = "Xapiens";
+}
+<h3 class="text-center">Data Users</h3>
+<hr />
+<div class="container" style="margin-top: 5px;">
+    <div style="width:90%; margin:0 auto;">
+        <table id="myTable">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>E-mail</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Detail</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Data</h5>
+            </div>
+            <div class="modal-body">
+                <div class="card" style="width: 18rem; margin:auto; justify-content:center">
+                    <img class="card-img-top" id="avatar" src="" alt="Card image cap">
+                    <div class="card-body">
+                        <p class="card-text" id="name"></p>
+                        <p class="card-text" id="email"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    tr.even {
+        background-color: #F5F5F5 !important;
+    }
+</style>
+@* Load datatable css *@
+<link href="//cdn.datatables.net/1.10.9/css/jquery.dataTables.min.css" rel="stylesheet" />
+@* Load datatable js *@
+@section Scripts{
+    <script src="//cdn.datatables.net/1.10.9/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#myTable').DataTable({
+                "ajax": {
+                    "url": "/home/LoadData",
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns" : [
+                        { "data": "id", "autoWidth": true },
+                        { "data": "email", "autoWidth": true },
+                        { "data": "first_name", "autoWidth": true },
+                        { "data": "last_name", "autoWidth": true },
+                        {
+                            "data": "id",
+                            "render": function (data, type, row) {
+                                return '<button onclick="showData('+data+');">Detail</button>';
+                            }
+                        }
+                    ]
+            });
+        });
+
+        function showData(id) {
+            $.ajax({
+                type: 'GET',
+                url: '/home/GetData/'+id,
+                dataType: 'json',
+                success: function (result) {
+                    var data = result.data;
+                    var fullname = data.first_name +" "+ data.last_name;
+                    $('#name').text(fullname);
+                    $('#email').text(data.email);
+                    $("#avatar").attr("src", data.avatar);
+                    $('#exampleModalCenter').modal('show');
+                },
+                error: function (xhr, type, exception) {
+                    // if ajax fails display error alert
+                    alert("ajax error response type " + type);
+                }
+            });
+            
+        }
+    </script>
+}
